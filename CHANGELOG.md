@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.0.0
+- Added a fixed 7×7×7 spatial grid with 343 cells.
+- Preserved ordered multi-symbol contents in each occupied cell.
+- Added 6-, 18- and 26-connectivity neighbor calculations.
+- Added relative-offset spatial pattern definitions and anchor scanning.
+- Added exact and contains cell matching modes.
+- Added same-cell and adjacency relation constraints scoped to matched cells.
+- Added deterministic spatial match results and priority ordering.
+- Added JSON serialization and validation for spatial grids.
+- Added package exports, specification, tests and GitHub Actions test workflow.
+- Kept spatial interpretation based on author-defined rules only.
+
 ## 1.9.0
 - Added append-only symbolic state memory with SNAPSHOT and TRANSITION events.
 - Added timezone-aware ISO-8601 timestamps normalized to UTC.
