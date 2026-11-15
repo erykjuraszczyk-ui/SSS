@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.9.0
+- Added append-only symbolic state memory with SNAPSHOT and TRANSITION events.
+- Added timezone-aware ISO-8601 timestamps normalized to UTC.
+- Added chronological validation and previous-entry chain integrity.
+- Added time-range, event-type and symbol-ID history filters.
+- Added state_at lookup and JSON export/import with schema validation.
+- Added immutable memory entry metadata and package exports.
+- Explicitly documented in-process storage and privacy boundaries.
+
 ## 1.8.0
 - Added deterministic author-defined emotional pattern recognition.
 - Added exact, ordered-subsequence and order-independent contains matching modes.
