@@ -274,7 +274,7 @@ class EmotionStateMemory:
             raise ValueError("unsupported expression operator")
         if not to_symbol_ids:
             raise ValueError("a memory entry must contain at least one symbol")
-        identifier = entry_id or str(uuid4())
+        identifier = str(uuid4()) if entry_id is None else entry_id
         if not isinstance(identifier, str) or not identifier.strip():
             raise ValueError("entry_id must be a non-empty string")
         if identifier in self._entry_ids:
