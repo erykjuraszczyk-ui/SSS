@@ -5,7 +5,7 @@ import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from types import MappingProxyType
-from typing import Any, Iterable, Mapping
+from typing import Any, Mapping
 from uuid import uuid4
 
 from .emotion import EmotionCipherEngine, EmotionExpression
@@ -37,6 +37,24 @@ def _json_copy(value: Any) -> Any:
         return json.loads(json.dumps(value, ensure_ascii=False, allow_nan=False))
     except (TypeError, ValueError) as exc:
         raise ValueError("memory metadata must contain JSON-compatible values") from exc
+
+
+def _freeze(value: Any) -> Any:
+    """Recursively freeze JSON data exposed through immutable memory entries."""
+    if isinstance(value, dict):
+        return MappingProxyType({key: _freeze(item) for key, item in value.items()})
+    if isinstance(value, list):
+        return tuple(_freeze(item) for item in value)
+    return value
+
+
+def _thaw(value: Any) -> Any:
+    """Convert frozen metadata back to ordinary JSON-compatible containers."""
+    if isinstance(value, Mapping):
+        return {key: _thaw(item) for key, item in value.items()}
+    if isinstance(value, tuple):
+        return [_thaw(item) for item in value]
+    return value
 
 
 @dataclass(frozen=True)
@@ -83,6 +101,8 @@ class EmotionStateMemory:
     ) -> EmotionMemoryEntry:
         """Record a state snapshot; it can initialize or checkpoint a timeline."""
         operator, symbol_ids, expression_metadata = self._read_expression(expression)
+        if metadata is not None and not isinstance(metadata, Mapping):
+            raise ValueError("event metadata must be a mapping")
         combined_metadata = {
             "expression": expression_metadata,
             "event": dict(metadata or {}),
@@ -178,7 +198,7 @@ class EmotionStateMemory:
                     "from_symbol_ids": list(entry.from_symbol_ids),
                     "to_symbol_ids": list(entry.to_symbol_ids),
                     "previous_entry_id": entry.previous_entry_id,
-                    "metadata": _json_copy(dict(entry.metadata)),
+                    "metadata": _json_copy(_thaw(entry.metadata)),
                 }
                 for entry in self._entries
             ],
@@ -278,7 +298,7 @@ class EmotionStateMemory:
             from_symbol_ids=from_symbol_ids,
             to_symbol_ids=to_symbol_ids,
             previous_entry_id=previous.entry_id if previous else None,
-            metadata=MappingProxyType(copied_metadata),
+            metadata=_freeze(copied_metadata),
         )
         self._entries.append(entry)
         self._entry_ids.add(identifier)
