@@ -107,6 +107,16 @@ class EmotionStateMemoryTests(unittest.TestCase):
         self.assertEqual(checkpoint.from_symbol_ids, ())
         self.assertEqual(checkpoint.previous_entry_id, "A")
 
+    def test_nested_metadata_is_immutable(self):
+        entry = self.memory.record_state(
+            expression("E1", metadata={"details": {"tags": ["authored"]}}),
+            self.t0,
+        )
+        with self.assertRaises(TypeError):
+            entry.metadata["expression"]["details"]["new"] = "value"
+        with self.assertRaises(TypeError):
+            entry.metadata["expression"]["details"]["tags"][0] = "changed"
+
 
 if __name__ == "__main__":
     unittest.main()
